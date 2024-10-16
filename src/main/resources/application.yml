@@ -7,3 +7,5 @@ spring:
       password: password
       database: db
       uri: uri
+comparison:
+  ignoredFields: "_id,last_updated"
