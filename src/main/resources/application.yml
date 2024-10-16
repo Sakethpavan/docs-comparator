@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: test
+  data:
+    mongodb:
+      username: username
+      password: password
+      database: db
+      uri: uri
