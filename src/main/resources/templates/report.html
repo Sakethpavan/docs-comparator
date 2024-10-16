@@ -6,33 +6,37 @@
     </head>
     <body>
         <h1>Comparison Report</h1>
-
-        <h2>Documents present only in Collection 1</h2>
+        <h2 th:text="'Documents present only in ' + ${collection1}"></h2>
         <ul>
-            <li th:each="doc : ${docsInFirstOnly}" th:text="${doc}"></li>
+<!--            <li th:each="doc : ${docsInFirstOnly}" th:text="${doc}"></li>-->
+            <li th:each="doc : ${docsInFirstOnly}" th:text="${doc['upc']}"></li>
         </ul>
 
-        <h2>Documents present only in Collection 2</h2>
+        <h2 th:text="'Documents present only in ' + ${collection2}"></h2>
         <ul>
-            <li th:each="doc : ${docsInSecondOnly}" th:text="${doc}"></li>
+<!--            <li th:each="doc : ${docsInSecondOnly}" th:text="${doc}"></li>-->
+            <li th:each="doc : ${docsInSecondOnly}" th:text="${doc['upc']}"></li>
         </ul>
+
 
         <h2>Differences in Matched Documents</h2>
         <table th:each="diff : ${differingDocs}" border="1">
+            <!-- Display UPC for each comparison -->
+            <h3 th:text="'Comparing UPC: ' + ${diff['upc']}"></h3>
             <thead>
             <tr>
                 <th>Field Name</th>
-                <th>Collection 1</th>
-                <th>Collection 2</th>
+                <th th:text="${collection1}">Collection 1</th>
+                <th th:text="${collection2}">Collection 2</th>
             </tr>
             </thead>
             <tbody>
             <!-- Loop through each map in the differingDocs list -->
             <tr th:each="entry : ${diff.entrySet()}">
                 <!-- Loop through each entry in the map (like meta_tags, last_updated, etc.) -->
-                <td th:text="${entry.key}">Field Name</td>
-                <td th:text="${entry.value.collection1}">Collection 1 Value</td>
-                <td th:text="${entry.value.collection2}">Collection 2 Value</td>
+                <td th:if="${entry.key != 'upc'}" th:text="${entry.key}">Field Name</td>
+                <td th:if="${entry.key != 'upc'}" th:text="${entry.value.collection1 != null ? entry.value.collection1 : 'null'}">Collection 1 Value</td>
+                <td th:if="${entry.key != 'upc'}" th:text="${entry.value.collection2 != null ? entry.value.collection2 : 'null'}">Collection 2 Value</td>
             </tr>
             </tbody>
         </table>

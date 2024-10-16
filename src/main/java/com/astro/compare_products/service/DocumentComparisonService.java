@@ -74,9 +74,12 @@ public class DocumentComparisonService {
     private Map<String, Object> compareDocumentFields(Document doc1, Document doc2) {
         Map<String, Object> differences = new HashMap<>();
 
+        // Add the UPC to the differences map to be displayed later
+        differences.put("upc", doc1.get("upc"));
+
         Set<String> keys = doc1.keySet();
         for (String key : keys) {
-            if (!key.equals("_id") && !key.equals("lastUpdated")) { // Exclude fields from comparison
+            if (!key.equals("_id") && !key.equals("last_updated")) { // Exclude fields from comparison
                 Object value1 = doc1.get(key);
                 Object value2 = doc2.get(key);
                 if (!Objects.equals(value1, value2)) {
