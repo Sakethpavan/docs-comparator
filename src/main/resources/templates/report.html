@@ -1,133 +1,143 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="UTF-8">
-        <title>Document Comparison Report</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f4f4f4;
-                margin: 0;
-                padding: 20px;
-            }
+<head>
+    <meta charset="UTF-8">
+    <title>Document Comparison Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
 
-            h1 {
-                text-align: center;
-                color: #333;
-            }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
 
-            h2 {
-                color: #333;
-                margin-top: 30px;
-            }
+        h2 {
+            color: #333;
+            margin-top: 30px;
+        }
 
-            ul {
-                margin: 10px 0;
-                padding: 0;
-                list-style-type: none;
-            }
+        ul {
+            margin: 10px 0;
+            padding: 0;
+            list-style-type: none;
+        }
 
-            ul li {
-                margin-bottom: 5px;
-                padding-left: 20px;
-                position: relative;
-                color: #333;
-            }
+        ul li {
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+            color: #333;
+        }
 
-            ul li:before {
-                content: '•';
-                color: #007BFF;
-                font-size: 16px;
-                position: absolute;
-                left: 0;
-            }
+        ul li:before {
+            content: '•';
+            color: #007BFF;
+            font-size: 16px;
+            position: absolute;
+            left: 0;
+        }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-            }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin-top: 20px;
+        }
 
-            th, td {
-                padding: 10px;
-                text-align: left;
-            }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            word-wrap: break-word;
+        }
 
-            th {
-                background-color: #007BFF;
-                color: white;
-            }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
 
-            tr:nth-child(even) {
-                background-color: #f9f9f9;
-            }
+        td {
+            border: 1px solid #ddd;
+        }
 
-            tr:nth-child(odd) {
-                background-color: #fff;
-            }
+        /* Custom column widths */
+        th:first-child, td:first-child {
+            width: 20%; /* 1st column (Field Name) takes 20% */
+        }
 
-            tr:hover {
-                background-color: #f1f1f1;
-            }
+        th:nth-child(2), td:nth-child(2), th:nth-child(3), td:nth-child(3) {
+            width: 40%; /* 2nd and 3rd columns take 40% each */
+        }
 
-            td {
-                border: 1px solid #ddd;
-            }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
 
-            .highlight {
-                background-color: #FFD700;
-            }
+        tr:nth-child(odd) {
+            background-color: #fff;
+        }
 
-            .table-container {
-                width: 100%;
-                margin-top: 20px;
-                overflow-x: auto;
-            }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
 
-            h3 {
-                margin-top: 40px;
-                font-size: 20px;
-                color: #007BFF;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Comparison Report</h1>
-        <h2 th:text="'Documents present only in ' + ${collection1}"></h2>
-        <ul>
-<!--            <li th:each="doc : ${docsInFirstOnly}" th:text="${doc}"></li>-->
-            <li th:each="doc : ${docsInFirstOnly}" th:text="${doc['upc']}"></li>
-        </ul>
+        .highlight {
+            background-color: #FFD700;
+        }
 
-        <h2 th:text="'Documents present only in ' + ${collection2}"></h2>
-        <ul>
-<!--            <li th:each="doc : ${docsInSecondOnly}" th:text="${doc}"></li>-->
-            <li th:each="doc : ${docsInSecondOnly}" th:text="${doc['upc']}"></li>
-        </ul>
+        .table-container {
+            width: 100%;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
 
+        h3 {
+            margin-top: 40px;
+            font-size: 20px;
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+<h1>Comparison Report</h1>
 
-        <h2>Differences in Matched Documents</h2>
-        <div class="table-container">
-            <table th:each="diff : ${differingDocs}">
-                <!-- Display UPC for each comparison -->
-                <h3 th:text="'Comparing UPC: ' + ${diff['upc']}"></h3>
-                <thead>
-                <tr>
-                    <th>Field Name</th>
-                    <th th:text="${collection1}">Collection 1</th>
-                    <th th:text="${collection2}">Collection 2</th>
-                </tr>
-                </thead>
-                <tbody>
-                <!-- Loop through each map in the differingDocs list -->
-                <tr th:each="entry : ${diff.entrySet()}">
-                    <!-- Loop through each entry in the map (like meta_tags, last_updated, etc.) -->
-                    <td th:if="${entry.key != 'upc'}" th:text="${entry.key}"></td>
-                    <td th:if="${entry.key != 'upc'}" th:text="${entry.value.collection1 != null ? entry.value.collection1 : 'null'}"></td>
-                    <td th:if="${entry.key != 'upc'}" th:text="${entry.value.collection2 != null ? entry.value.collection2 : 'null'}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </body>
+<h2 th:text="'Documents present only in ' + ${collection1}"></h2>
+<ul>
+    <li th:each="doc : ${docsInFirstOnly}" th:text="${doc['upc']}"></li>
+</ul>
+
+<h2 th:text="'Documents present only in ' + ${collection2}"></h2>
+<ul>
+    <li th:each="doc : ${docsInSecondOnly}" th:text="${doc['upc']}"></li>
+</ul>
+
+<h2>Differences in Matched Documents</h2>
+
+<div class="table-container">
+    <table th:each="diff : ${differingDocs}">
+        <!-- Display UPC for each comparison -->
+        <h3 th:text="'Comparing UPC: ' + ${diff['upc']}"></h3>
+        <thead>
+        <tr>
+            <th>Field Name</th>
+            <th th:text="${collection1}">Collection 1</th>
+            <th th:text="${collection2}">Collection 2</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Loop through each map in the differingDocs list -->
+        <tr th:each="entry : ${diff.entrySet()}">
+            <!-- Loop through each entry in the map (like meta_tags, last_updated, etc.) -->
+            <td th:if="${entry.key != 'upc'}" th:text="${entry.key}"></td>
+            <td th:if="${entry.key != 'upc'}" th:text="${entry.value.collection1 != null ? entry.value.collection1 : 'null'}"></td>
+            <td th:if="${entry.key != 'upc'}" th:text="${entry.value.collection2 != null ? entry.value.collection2 : 'null'}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
 </html>
