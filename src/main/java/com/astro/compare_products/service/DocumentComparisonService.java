@@ -3,9 +3,7 @@ package com.astro.compare_products.service;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -18,9 +16,6 @@ import static com.astro.compare_products.common.Constants.*;
 public class DocumentComparisonService {
 
     Logger logger = LoggerFactory.getLogger(DocumentComparisonService.class);
-
-    @Autowired
-    private MongoTemplate mongoTemplate;
 
     // Inject ignored fields from the application properties
     @Value("${comparison.ignoredFields}")
