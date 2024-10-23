@@ -64,7 +64,6 @@
             border: 1px solid #ddd;
         }
 
-        /* Custom column widths */
         th:first-child, td:first-child {
             width: 20%; /* 1st column (Field Name) takes 20% */
         }
@@ -119,7 +118,6 @@
 
 <div class="table-container">
     <table th:each="diff : ${differingDocs}">
-        <!-- Display UPC for each comparison -->
         <h3 th:text="'Comparing UPC: ' + ${diff['upc']}"></h3>
         <thead>
         <tr>

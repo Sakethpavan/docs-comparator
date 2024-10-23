@@ -3,7 +3,6 @@ package com.astro.compare_products.controller;
 import com.astro.compare_products.service.DocumentComparisonService;
 import com.astro.compare_products.service.DocumentFetcherService;
 import org.bson.Document;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,11 +14,14 @@ import java.util.Map;
 @Controller
 public class ReportController {
 
-    @Autowired
-    private DocumentFetcherService documentFetcherService;
+    private final DocumentFetcherService documentFetcherService;
+    private final DocumentComparisonService comparisonService;
 
-    @Autowired
-    private DocumentComparisonService comparisonService;
+    ReportController(final DocumentFetcherService documentFetcherService, final DocumentComparisonService comparisonService) {
+        this.documentFetcherService = documentFetcherService;
+        this.comparisonService = comparisonService;
+    }
+
 
     @GetMapping("/generateReport")
     public String generateReport(@RequestParam String upc, @RequestParam String category, Model model) {

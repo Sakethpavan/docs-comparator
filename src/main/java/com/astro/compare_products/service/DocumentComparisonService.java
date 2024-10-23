@@ -1,6 +1,8 @@
 package com.astro.compare_products.service;
 
 import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -14,6 +16,8 @@ import static com.astro.compare_products.common.Constants.*;
 
 @Service
 public class DocumentComparisonService {
+
+    Logger logger = LoggerFactory.getLogger(DocumentComparisonService.class);
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -83,7 +87,14 @@ public class DocumentComparisonService {
                                       Set<String> ignoredFields) {
         // Create a map for fast lookup of target documents by their key
         Map<String, Document> targetDocMap = targetDocs.stream()
-                .collect(Collectors.toMap(this::generateKey, Function.identity()));
+                .collect(Collectors.toMap(
+                        this::generateKey,
+                        Function.identity(),
+                        (existing, replacement) -> {
+                            logger.warn("Duplicate key found: {}. Existing document: {}. New Document: {}", generateKey(existing), existing, replacement);
+                            return existing;
+                        })
+                );
 
         // Process each document from the source collection
         sourceDocs
@@ -111,7 +122,7 @@ public class DocumentComparisonService {
         String upc = doc.get(FIELD_UPC) != null ? doc.get(FIELD_UPC).toString() : "";
         String catalogType = doc.get(FIELD_CATALOG_TYPE) != null ? doc.get(FIELD_CATALOG_TYPE).toString() : "";
         String country = doc.get(FIELD_COUNTRY) != null ? doc.get(FIELD_COUNTRY).toString() : "";
-        String product_id = doc.get(FIELD_PRODUCT_ID) != null ? doc.get(FIELD_PRODUCT_ID).toString(): "";
-        return upc + UNDERSCORE + product_id + UNDERSCORE + catalogType + UNDERSCORE + country;
+        String productId = doc.get(FIELD_PRODUCT_ID) != null ? doc.get(FIELD_PRODUCT_ID).toString(): "";
+        return upc + UNDERSCORE + productId + UNDERSCORE + catalogType + UNDERSCORE + country;
     }
 }

@@ -1,7 +1,6 @@
 package com.astro.compare_products.service;
 
 import org.bson.Document;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -12,8 +11,11 @@ import java.util.List;
 @Service
 public class DocumentFetcherService {
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
+
+    DocumentFetcherService(final MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
 
     public List<Document> fetchDocuments(String category, String collectionName) {
         Query query = new Query();
