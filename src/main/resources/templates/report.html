@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Document Comparison Report</title>
@@ -41,57 +41,101 @@
             position: absolute;
             left: 0;
         }
-
-        table {
+        /* Style for the first table */
+        .specific-documents-table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
+            table-layout: auto;
             margin-top: 20px;
         }
 
-        th, td {
+        .specific-documents-table th, .specific-documents-table td {
             padding: 10px;
             text-align: left;
             word-wrap: break-word;
         }
 
-        th {
+        .specific-documents-table th {
             background-color: #007BFF;
             color: white;
         }
 
-        td {
+        .specific-documents-table td {
             border: 1px solid #ddd;
         }
 
-        th:first-child, td:first-child {
+        .specific-documents-table th:first-child, .specific-documents-table td:first-child {
             width: 20%; /* 1st column (Field Name) takes 20% */
         }
 
-        th:nth-child(2), td:nth-child(2), th:nth-child(3), td:nth-child(3) {
-            width: 40%; /* 2nd and 3rd columns take 40% each */
+        .specific-documents-table th:nth-child(2), .specific-documents-table td:nth-child(2) {
+            width: 25%; /* 2nd column */
         }
 
-        tr:nth-child(even) {
+        .specific-documents-table th:nth-child(3), .specific-documents-table td:nth-child(3) {
+            width: 25%; /* 3rd column */
+        }
+
+        .specific-documents-table th:nth-child(4), .specific-documents-table td:nth-child(4) {
+            width: 30%; /* 4th column */
+        }
+
+        .specific-documents-table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
 
-        tr:nth-child(odd) {
+        .specific-documents-table tr:nth-child(odd) {
             background-color: #fff;
         }
 
-        tr:hover {
+        .specific-documents-table tr:hover {
             background-color: #f1f1f1;
         }
 
-        .highlight {
-            background-color: #FFD700;
+        .diff-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
+            margin-top: 20px;
         }
 
-        .table-container {
-            width: 100%;
-            margin-top: 20px;
-            overflow-x: auto;
+        .diff-table th, .diff-table td {
+            padding: 10px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+
+        .diff-table th {
+            background-color: #FF5722;
+            color: white;
+        }
+
+        .diff-table td {
+            border: 1px solid #ddd;
+        }
+
+        .diff-table th:first-child, .diff-table td:first-child {
+            width: 15%; /* Adjust width for first column */
+        }
+
+        .diff-table th:nth-child(2), .diff-table td:nth-child(2) {
+            width: 40%; /* Adjust width for second column */
+        }
+
+        .diff-table th:nth-child(3), .diff-table td:nth-child(3) {
+            width: 45%; /* Adjust width for third column */
+        }
+
+        .diff-table tr:nth-child(even) {
+            background-color: #ffece4;
+        }
+
+        .diff-table tr:nth-child(odd) {
+            background-color: #fff;
+        }
+
+        .diff-table tr:hover {
+            background-color: #ffd8c2;
         }
 
         h3 {
@@ -104,20 +148,52 @@
 <body>
 <h1>Comparison Report</h1>
 
+<!--docs present only in collection 1-->
 <h2 th:text="'Documents present only in ' + ${collection1}"></h2>
-<ul>
-    <li th:each="doc : ${docsInFirstOnly}" th:text="${doc['upc']}"></li>
-</ul>
+<table class="specific-documents-table">
+    <thead>
+    <tr>
+        <th>upc</th>
+        <th>product_id</th>
+        <th>country</th>
+        <th>catalog_type</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="doc : ${docsInFirstOnly}">
+        <td th:text="${doc['upc']}"></td>
+        <td th:text="${doc['product_id']}"></td>
+        <td th:text="${doc['country']}"></td>
+        <td th:text="${doc['catalog_type']}"></td>
+    </tr>
+    </tbody>
+</table>
 
+<!--docs present only in collection 2-->
 <h2 th:text="'Documents present only in ' + ${collection2}"></h2>
-<ul>
-    <li th:each="doc : ${docsInSecondOnly}" th:text="${doc['upc']}"></li>
-</ul>
+<table class="specific-documents-table">
+    <thead>
+    <tr>
+        <th>upc</th>
+        <th>product_id</th>
+        <th>country</th>
+        <th>catalog_type</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="doc : ${docsInSecondOnly}">
+        <td th:text="${doc['upc']}"></td>
+        <td th:text="${doc['product_id']}"></td>
+        <td th:text="${doc['country']}"></td>
+        <td th:text="${doc['catalog_type']}"></td>
+    </tr>
+    </tbody>
+</table>
 
+<!--Difference matched documents collection1 and collection2 -->
 <h2>Differences in Matched Documents</h2>
-
 <div class="table-container">
-    <table th:each="diff : ${differingDocs}">
+    <table class="diff-table" th:each="diff : ${differingDocs}">
         <h3 th:text="'Comparing UPC: ' + ${diff['upc']}"></h3>
         <thead>
         <tr>
@@ -127,9 +203,7 @@
         </tr>
         </thead>
         <tbody>
-        <!-- Loop through each map in the differingDocs list -->
         <tr th:each="entry : ${diff.entrySet()}">
-            <!-- Loop through each entry in the map (like meta_tags, last_updated, etc.) -->
             <td th:if="${entry.key != 'upc'}" th:text="${entry.key}"></td>
             <td th:if="${entry.key != 'upc'}" th:text="${entry.value.collection1 != null ? entry.value.collection1 : 'null'}"></td>
             <td th:if="${entry.key != 'upc'}" th:text="${entry.value.collection2 != null ? entry.value.collection2 : 'null'}"></td>
@@ -137,5 +211,6 @@
         </tbody>
     </table>
 </div>
+
 </body>
 </html>
