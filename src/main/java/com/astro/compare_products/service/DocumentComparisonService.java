@@ -1,5 +1,6 @@
 package com.astro.compare_products.service;
 
+import jakarta.annotation.PostConstruct;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,18 @@ public class DocumentComparisonService {
     // Inject ignored fields from the application properties
     @Value("${comparison.ignoredFields}")
     private String ignoredFieldsProperty;
+
+    // Inject key fields from the application properties
+    @Value("${comparison.keyFields}")
+    private String keyFieldsProperty;
+
+    private List<String> keyFields;
+
+    @PostConstruct
+    public void init() {
+        // Initialize keyFields by splitting the YAML property
+        keyFields = Arrays.asList(keyFieldsProperty.split(","));
+    }
 
     public Map<String, Object> compareDocuments(List<Document> collection1Docs, List<Document> collection2Docs) {
         // Maps to store comparison results
@@ -48,8 +61,13 @@ public class DocumentComparisonService {
     private Map<String, Object> compareDocumentFields(Document doc1, Document doc2, Set<String> ignoredFields) {
         Map<String, Object> differences = new HashMap<>();
 
-        // Add the UPC to the differences map to be displayed later
-        differences.put("upc", doc1.get("upc"));
+        // Add the KEY_FIELDS to the differences map to be displayed later
+        keyFields.forEach(keyField -> {
+            Map<String, Object> diff = new HashMap<>();
+            diff.put("collection1", doc1.get(keyField));
+            diff.put("collection2", doc2.get(keyField));
+            differences.put(keyField, diff);
+        });
 
         // Use streams to iterate over the keys of doc1
         doc1.keySet().stream()
@@ -114,10 +132,8 @@ public class DocumentComparisonService {
 
     // Helper method to generate the key for document comparison
     private String generateKey(Document doc) {
-        String upc = doc.get(FIELD_UPC) != null ? doc.get(FIELD_UPC).toString() : "";
-        String catalogType = doc.get(FIELD_CATALOG_TYPE) != null ? doc.get(FIELD_CATALOG_TYPE).toString() : "";
-        String country = doc.get(FIELD_COUNTRY) != null ? doc.get(FIELD_COUNTRY).toString() : "";
-        String productId = doc.get(FIELD_PRODUCT_ID) != null ? doc.get(FIELD_PRODUCT_ID).toString(): "";
-        return upc + UNDERSCORE + productId + UNDERSCORE + catalogType + UNDERSCORE + country;
+        return keyFields.stream()
+                .map(field -> doc.get(field) != null ? doc.get(field).toString() : EMPTY_STRING)
+                .collect(Collectors.joining(UNDERSCORE));
     }
 }

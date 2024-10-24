@@ -12,5 +12,6 @@ public class Constants {
     public static final String FIELD_CATALOG_TYPE = "catalog_type";
     public static final String FIELD_COUNTRY = "country";
     public static final String FIELD_PRODUCT_ID = "product_id";
+    public static final String EMPTY_STRING = "";
 
 }

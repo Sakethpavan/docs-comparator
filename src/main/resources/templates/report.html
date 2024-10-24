@@ -194,7 +194,14 @@
 <h2>Differences in Matched Documents</h2>
 <div class="table-container">
     <table class="diff-table" th:each="diff : ${differingDocs}">
-        <h3 th:text="'Comparing UPC: ' + ${diff['upc']}"></h3>
+        <!-- Iterate over keyFields and display the key fields used for comparison -->
+        <h3>
+            Comparing
+            <span th:each="keyField, iterStat : ${keyFields}">
+                <span th:text="${keyField} + ': ' + ${diff.get(keyField).collection1}"></span>
+                <span th:if="${!iterStat.last}">, </span> <!-- Adds a comma between key fields, but not after the last one -->
+            </span>
+        </h3>
         <thead>
         <tr>
             <th>Field Name</th>
@@ -203,10 +210,12 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="entry : ${diff.entrySet()}">
-            <td th:if="${entry.key != 'upc'}" th:text="${entry.key}"></td>
-            <td th:if="${entry.key != 'upc'}" th:text="${entry.value.collection1 != null ? entry.value.collection1 : 'null'}"></td>
-            <td th:if="${entry.key != 'upc'}" th:text="${entry.value.collection2 != null ? entry.value.collection2 : 'null'}"></td>
+        <!-- Iterate through the field differences, excluding the key fields -->
+        <tr th:each="entry : ${diff.entrySet()}"
+            th:if="${not keyFields.contains(entry.key)}">
+            <td th:text="${entry.key}"></td>
+            <td th:text="${entry.value.collection1 != null ? entry.value.collection1 : 'null'}"></td>
+            <td th:text="${entry.value.collection2 != null ? entry.value.collection2 : 'null'}"></td>
         </tr>
         </tbody>
     </table>

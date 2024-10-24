@@ -2,7 +2,9 @@ package com.astro.compare_products.controller;
 
 import com.astro.compare_products.service.DocumentComparisonService;
 import com.astro.compare_products.service.DocumentFetcherService;
+import jakarta.annotation.PostConstruct;
 import org.bson.Document;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +25,18 @@ public class ReportController {
     private final DocumentFetcherService documentFetcherService;
     private final DocumentComparisonService comparisonService;
     private final SpringTemplateEngine templateEngine;
+
+    // Inject key fields from the application properties
+    @Value("${comparison.keyFields}")
+    private String keyFieldsProperty;
+
+    private List<String> keyFields;
+
+    @PostConstruct
+    public void init() {
+        // Initialize keyFields by splitting the YAML property
+        keyFields = Arrays.asList(keyFieldsProperty.split(","));
+    }
 
     ReportController(final DocumentFetcherService documentFetcherService,
                      final DocumentComparisonService comparisonService,
@@ -51,6 +66,7 @@ public class ReportController {
         model.addAttribute("differingDocs", reportData.get("differingDocs"));
         model.addAttribute("collection1", collection1);
         model.addAttribute("collection2", collection2);
+        model.addAttribute("keyFields", keyFields);
 
         // Set up the Thymeleaf context for the report
         Context context = new Context();
@@ -59,6 +75,7 @@ public class ReportController {
         context.setVariable("differingDocs", reportData.get("differingDocs"));
         context.setVariable("collection1", collection1);
         context.setVariable("collection2", collection2);
+        context.setVariable("keyFields", keyFields);
         String htmlContent = templateEngine.process("report", context);
 
         // Save the HTML content to a file
