@@ -9,3 +9,4 @@ spring:
       uri: uri
 comparison:
   ignoredFields: "_id,last_updated"
+  keyFields: "upc,product_id,catalog_type,country"
