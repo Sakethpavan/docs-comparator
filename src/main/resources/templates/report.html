@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Document Comparison Report</title>
@@ -41,6 +41,7 @@
             position: absolute;
             left: 0;
         }
+
         /* Style for the first table */
         .specific-documents-table {
             width: 100%;
@@ -153,18 +154,12 @@
 <table class="specific-documents-table">
     <thead>
     <tr>
-        <th>upc</th>
-        <th>product_id</th>
-        <th>country</th>
-        <th>catalog_type</th>
+        <th th:each="keyField : ${keyFields}" th:text="${keyField}"></th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="doc : ${docsInFirstOnly}">
-        <td th:text="${doc['upc']}"></td>
-        <td th:text="${doc['product_id']}"></td>
-        <td th:text="${doc['country']}"></td>
-        <td th:text="${doc['catalog_type']}"></td>
+        <td th:each="keyField : ${keyFields}" th:text="${doc.get(keyField)}"></td>
     </tr>
     </tbody>
 </table>
@@ -174,18 +169,12 @@
 <table class="specific-documents-table">
     <thead>
     <tr>
-        <th>upc</th>
-        <th>product_id</th>
-        <th>country</th>
-        <th>catalog_type</th>
+        <th th:each="keyField : ${keyFields}" th:text="${keyField}"></th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="doc : ${docsInSecondOnly}">
-        <td th:text="${doc['upc']}"></td>
-        <td th:text="${doc['product_id']}"></td>
-        <td th:text="${doc['country']}"></td>
-        <td th:text="${doc['catalog_type']}"></td>
+        <td th:each="keyField : ${keyFields}" th:text="${doc.get(keyField)}"></td>
     </tr>
     </tbody>
 </table>
@@ -199,7 +188,8 @@
             Comparing
             <span th:each="keyField, iterStat : ${keyFields}">
                 <span th:text="${keyField} + ': ' + ${diff.get(keyField).collection1}"></span>
-                <span th:if="${!iterStat.last}">, </span> <!-- Adds a comma between key fields, but not after the last one -->
+                <span th:if="${!iterStat.last}">, </span>
+                <!-- Adds a comma between key fields, but not after the last one -->
             </span>
         </h3>
         <thead>
