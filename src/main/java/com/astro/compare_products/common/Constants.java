@@ -13,5 +13,6 @@ public class Constants {
     public static final String FIELD_COUNTRY = "country";
     public static final String FIELD_PRODUCT_ID = "product_id";
     public static final String EMPTY_STRING = "";
-
+    public static final String INPUT_PARAM_UPC = "upc";
+    public static final String INPUT_PARAM_CATEGORY = "category";
 }
