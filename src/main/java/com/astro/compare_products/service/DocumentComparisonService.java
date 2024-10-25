@@ -13,6 +13,13 @@ import java.util.stream.Collectors;
 
 import static com.astro.compare_products.common.Constants.*;
 
+/**
+ * Service for comparing documents from two collections, identifying documents unique to each collection,
+ * and determining field-level differences between matching documents.
+ * <p>
+ * This service reads configuration properties for fields to ignore during comparison and key fields
+ * for identifying matching documents across collections.
+ */
 @Service
 public class DocumentComparisonService {
 
@@ -28,12 +35,24 @@ public class DocumentComparisonService {
 
     private List<String> keyFields;
 
+    /**
+     * Initializes the service by splitting the configured key fields property
+     * into a list for use in document key generation.
+     */
     @PostConstruct
     public void init() {
         // Initialize keyFields by splitting the YAML property
         keyFields = Arrays.asList(keyFieldsProperty.split(","));
     }
 
+    /**
+     * Compares two lists of documents, identifying documents unique to each collection
+     * and any field-level differences in matching documents.
+     *
+     * @param collection1Docs List of documents in the first collection
+     * @param collection2Docs List of documents in the second collection
+     * @return Map containing lists of documents unique to each collection and any differing documents
+     */
     public Map<String, Object> compareDocuments(List<Document> collection1Docs, List<Document> collection2Docs) {
         // Maps to store comparison results
         List<Document> docsInFirstOnly = new ArrayList<>();
@@ -57,7 +76,15 @@ public class DocumentComparisonService {
         return reportData;
     }
 
-    // Helper method to compare fields of two documents
+    /**
+     * Compares fields between two documents, ignoring specified fields and performing deep comparison
+     * on nested documents.
+     *
+     * @param doc1          The first document
+     * @param doc2          The second document
+     * @param ignoredFields Set of fields to ignore during comparison
+     * @return Map of fields with differing values between the two documents
+     */
     private Map<String, Object> compareDocumentFields(Document doc1, Document doc2, Set<String> ignoredFields) {
         Map<String, Object> differences = new HashMap<>();
 
@@ -94,7 +121,16 @@ public class DocumentComparisonService {
         return differences;
     }
 
-    // Helper method to compare two document lists and update results
+    /**
+     * Helper method to compare documents from one collection against documents in another collection,
+     * identifying unique documents and collecting field differences for matching documents.
+     *
+     * @param sourceDocs       List of documents from the source collection
+     * @param targetDocs       List of documents from the target collection
+     * @param docsInSourceOnly List to store documents unique to the source collection
+     * @param differingDocs    List to store field-level differences for matching documents
+     * @param ignoredFields    Set of fields to ignore during comparison
+     */
     private void compareDocumentLists(List<Document> sourceDocs, List<Document> targetDocs,
                                       List<Document> docsInSourceOnly, List<Map<String, Object>> differingDocs,
                                       Set<String> ignoredFields) {
@@ -130,7 +166,13 @@ public class DocumentComparisonService {
                 });
     }
 
-    // Helper method to generate the key for document comparison
+    /**
+     * Generates a unique key for a document by concatenating values of key fields,
+     * allowing documents to be matched across collections.
+     *
+     * @param doc The document for which to generate the key
+     * @return Concatenated string of key field values
+     */
     private String generateKey(Document doc) {
         return keyFields.stream()
                 .map(field -> doc.get(field) != null ? doc.get(field).toString() : EMPTY_STRING)
