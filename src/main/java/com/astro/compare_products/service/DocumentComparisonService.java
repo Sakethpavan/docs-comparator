@@ -23,6 +23,8 @@ import static com.astro.compare_products.common.Constants.*;
 @Service
 public class DocumentComparisonService {
 
+    public static final String COLLECTION_1 = "collection1";
+    public static final String COLLECTION_2 = "collection2";
     Logger logger = LoggerFactory.getLogger(DocumentComparisonService.class);
 
     // Inject ignored fields from the application properties
@@ -68,12 +70,45 @@ public class DocumentComparisonService {
         compareDocumentLists(collection1Docs, collection2Docs, docsInFirstOnly, differingDocs, ignoredFields);
         compareDocumentLists(collection2Docs, collection1Docs, docsInSecondOnly, null, ignoredFields);
 
-
+        List<Map<String, Map<String, Object>>> flattenDifferingDocs = flattenDifferingDocs(differingDocs);
         reportData.put("docsInFirstOnly", docsInFirstOnly);
         reportData.put("docsInSecondOnly", docsInSecondOnly);
-        reportData.put("differingDocs", differingDocs);
+        reportData.put("differingDocs", flattenDifferingDocs);
 
         return reportData;
+    }
+
+    private List<Map<String, Map<String, Object>>> flattenDifferingDocs(List<Map<String, Object>> differingDocs) {
+        List<Map<String, Map<String, Object>>> flattenedDocs = new ArrayList<>();
+        differingDocs.forEach(doc -> {
+            Map<String, Map<String, Object>> flattenedDoc = new LinkedHashMap<>();
+            flattenMap(doc, "", flattenedDoc);
+            flattenedDocs.add(flattenedDoc);
+        });
+
+        return flattenedDocs;
+    }
+
+    private void flattenMap(Map<String, Object> sourceMap, String parentKey, Map<String, Map<String, Object>> flattenedMap) {
+        for (Map.Entry<String, Object> entry : sourceMap.entrySet()) {
+            String key = parentKey.isEmpty() ? entry.getKey() : parentKey + "." + entry.getKey();
+            Object value = entry.getValue();
+
+            if (value instanceof Map) {
+                Map<String, Object> nestedMap = (Map<String, Object>) value;
+
+                // Check if it's a leaf node with collection1 and collection2
+                if (nestedMap.containsKey(COLLECTION_1) || nestedMap.containsKey(COLLECTION_2)) {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put(COLLECTION_1, nestedMap.getOrDefault(COLLECTION_1, null));
+                    result.put(COLLECTION_2, nestedMap.getOrDefault(COLLECTION_2, null));
+                    flattenedMap.put(key, result);
+                } else {
+                    // Recurse if there are more nested fields
+                    flattenMap(nestedMap, key, flattenedMap);
+                }
+            }
+        }
     }
 
     /**
@@ -87,14 +122,6 @@ public class DocumentComparisonService {
      */
     private Map<String, Object> compareDocumentFields(Document doc1, Document doc2, Set<String> ignoredFields) {
         Map<String, Object> differences = new HashMap<>();
-
-        // Add the KEY_FIELDS to the differences map to be displayed later
-        keyFields.forEach(keyField -> {
-            Map<String, Object> diff = new HashMap<>();
-            diff.put("collection1", doc1.get(keyField));
-            diff.put("collection2", doc2.get(keyField));
-            differences.put(keyField, diff);
-        });
 
         // Use streams to iterate over the keys of doc1
         doc1.keySet().stream()
@@ -112,8 +139,8 @@ public class DocumentComparisonService {
                     } else if (!Objects.equals(value1, value2)) {
                         // For non-document values, check for equality
                         Map<String, Object> diff = new HashMap<>();
-                        diff.put("collection1", value1);
-                        diff.put("collection2", value2);
+                        diff.put(COLLECTION_1, value1);
+                        diff.put(COLLECTION_2, value2);
                         differences.put(key, diff);
                     }
                 });
@@ -153,9 +180,16 @@ public class DocumentComparisonService {
 
                     if (matchingTargetDoc != null) {
                         // If a match is found, compare the fields and collect differences
+                        // Add the KEY_FIELDS to the differences map to be displayed later
                         if (differingDocs != null) {
                             Map<String, Object> fieldDifferences = compareDocumentFields(sourceDoc, matchingTargetDoc, ignoredFields);
                             if (!fieldDifferences.isEmpty()) {
+                                keyFields.forEach(keyField -> {
+                                    Map<String, Object> diff = new HashMap<>();
+                                    diff.put(COLLECTION_1, sourceDoc.get(keyField));
+                                    diff.put(COLLECTION_2, matchingTargetDoc.get(keyField));
+                                    fieldDifferences.put(keyField, diff);
+                                });
                                 differingDocs.add(fieldDifferences);
                             }
                         }
